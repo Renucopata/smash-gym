@@ -3,7 +3,7 @@ import React from 'react'
 export default function AttendanceList() {
     return (
         <div className="flex-1 bg-white shadow rounded p-4 overflow-auto">
-          <h2 className="text-xl font-bold mb-4">Today's Attendance</h2>
+          <h2 className="text-xl font-bold mb-4">Asistencias del dia</h2>
           <ul>
             {[
               { time: "8:00 AM", name: "John Doe" },

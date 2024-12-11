@@ -1,31 +1,47 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 
 export default function Sidebar() {
-    const [isOpen, setIsOpen] = useState(true);
+    
     return (
-        <div
-          className={`${
-            isOpen ? "w-64" : "w-16"
-          } bg-blue-700 text-white transition-all duration-300 h-full flex flex-col`}
-        >
-          <button
-            className="p-4 focus:outline-none text-white hover:bg-blue-600"
-            onClick={() => setIsOpen(!isOpen)}
-          >
-            ☰
-          </button>
-          <nav className="flex flex-col mt-4">
-            <a href="#" className="py-2 px-4 hover:bg-blue-600">
-              Dashboard
-            </a>
-            <a href="#" className="py-2 px-4 hover:bg-blue-600">
-              Attendance
-            </a>
-            <a href="#" className="py-2 px-4 hover:bg-blue-600">
-              Settings
-            </a>
-          </nav>
-        </div>
+        
+          
+<nav className="flex flex-col mt-4">
+  <Link
+    to="/clients"
+    className="py-2 px-4 hover:bg-[#d9bddc] after:block after:h-1 after:w-full after:bg-gradient-to-r after:from-[#3b3b41] after:to-transparent"
+  >
+    Clientes
+  </Link>
+  <Link
+    to="/machines"
+    className="py-2 px-4 hover:bg-[#d9bddc] after:block after:h-1 after:w-full after:bg-gradient-to-r after:from-[#3b3b41] after:to-transparent"
+  >
+    Máquinas
+  </Link>
+  <Link
+    to="/employees"
+    className="py-2 px-4 hover:bg-[#d9bddc] after:block after:h-1 after:w-full after:bg-gradient-to-r after:from-[#3b3b41] after:to-transparent"
+  >
+    Personal
+  </Link>
+  <Link
+    to="/charts"
+    className="py-2 px-4 hover:bg-[#d9bddc] after:block after:h-1 after:w-full after:bg-gradient-to-r after:from-[#3b3b41] after:to-transparent"
+  >
+    Estadísticas
+  </Link>
+  <Link
+    to="/clients"
+    className="py-2 px-4 hover:bg-[#d9bddc] after:block after:h-1 after:w-full after:bg-gradient-to-r after:from-[#3b3b41] after:to-transparent"
+  >
+    Cierre del día
+  </Link>
+</nav>
+
+    
+    
+        
       );
     };
  
