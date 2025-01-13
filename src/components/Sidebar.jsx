@@ -1,47 +1,54 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import { Link } from "react-router-dom";
+import { AuthContext } from "../utils/AuthContext";
 
 export default function Sidebar() {
+  const { logout } = useContext(AuthContext);
     
-    return (
-        
-          
-<nav className="flex flex-col mt-4">
-  <Link
-    to="/clients"
-    className="py-2 px-4 hover:bg-[#d9bddc] after:block after:h-1 after:w-full after:bg-gradient-to-r after:from-[#3b3b41] after:to-transparent"
-  >
-    Clientes
-  </Link>
-  <Link
-    to="/machines"
-    className="py-2 px-4 hover:bg-[#d9bddc] after:block after:h-1 after:w-full after:bg-gradient-to-r after:from-[#3b3b41] after:to-transparent"
-  >
-    Máquinas
-  </Link>
-  <Link
-    to="/employees"
-    className="py-2 px-4 hover:bg-[#d9bddc] after:block after:h-1 after:w-full after:bg-gradient-to-r after:from-[#3b3b41] after:to-transparent"
-  >
-    Personal
-  </Link>
-  <Link
-    to="/charts"
-    className="py-2 px-4 hover:bg-[#d9bddc] after:block after:h-1 after:w-full after:bg-gradient-to-r after:from-[#3b3b41] after:to-transparent"
-  >
-    Estadísticas
-  </Link>
-  <Link
-    to="/clients"
-    className="py-2 px-4 hover:bg-[#d9bddc] after:block after:h-1 after:w-full after:bg-gradient-to-r after:from-[#3b3b41] after:to-transparent"
-  >
-    Cierre del día
-  </Link>
-</nav>
+  return (
+    <nav className="flex flex-col h-full">
+      {/* Navigation links group */}
+      <div className="flex-grow flex flex-col mt-4">
+        <Link
+          to="/clients"
+          className="py-2 px-4 hover:bg-[#d9bddc] after:block after:h-1 after:w-full after:bg-gradient-to-r after:from-[#3b3b41] after:to-transparent"
+        >
+          Clientes
+        </Link>
+        <Link
+          to="/memberships"
+          className="py-2 px-4 hover:bg-[#d9bddc] after:block after:h-1 after:w-full after:bg-gradient-to-r after:from-[#3b3b41] after:to-transparent"
+        >
+          Membresías
+        </Link>
+        <Link
+          to="/employees"
+          className="py-2 px-4 hover:bg-[#d9bddc] after:block after:h-1 after:w-full after:bg-gradient-to-r after:from-[#3b3b41] after:to-transparent"
+        >
+          Personal
+        </Link>
+        <Link
+          to="/charts"
+          className="py-2 px-4 hover:bg-[#d9bddc] after:block after:h-1 after:w-full after:bg-gradient-to-r after:from-[#3b3b41] after:to-transparent"
+        >
+          Estadísticas
+        </Link>
+        <Link
+          to="/clients"
+          className="py-2 px-4 hover:bg-[#d9bddc] after:block after:h-1 after:w-full after:bg-gradient-to-r after:from-[#3b3b41] after:to-transparent"
+        >
+          Cierre del día
+        </Link>
+      </div>
 
-    
-    
-        
-      );
-    };
+      {/* Logout button - will stay at bottom */}
+      <button
+        onClick={logout}
+        className="w-full py-2 px-4 mt-auto mb-1 bg-red-500 text-white rounded hover:bg-red-600"
+      >
+        Cerrar Sesión
+      </button>
+    </nav>      
+  );
+}
  

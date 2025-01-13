@@ -1,8 +1,17 @@
-import { useState } from 'react';
+import { useState, useContext } from 'react';
+import { Navigate } from "react-router-dom";
 import Login from '../components/Login';
 import logo from '../assets/logo2.jpg'
+import { AuthContext } from '../utils/AuthContext';
 
 const WelcomePage = () => {
+
+  const { isAuthenticated } = useContext(AuthContext);
+
+  if (isAuthenticated) {
+    return <Navigate to="/dashboard" />;
+  }
+
   const [showLogin, setShowLogin] = useState(false);
 
   const handleShowLogin = () => {
@@ -12,12 +21,12 @@ const WelcomePage = () => {
 
   return (
     <div
-      className="h-screen w-screen flex justify-center items-center bg-gray-100">
+      className="h-screen w-screen flex justify-center items-center bg-[#834f9b]">
       {showLogin ? (
         <Login setShowLogin={setShowLogin}></Login>
       ) : (
      
-<div className="bg-white p-8 rounded-xl shadow-lg">
+<div className="bg-gray-100 p-8 rounded-xl shadow-lg">
  <div className="flex justify-center items-center">
    <div className="flex flex-col items-center">
      <div className="flex items-center mb-4">
