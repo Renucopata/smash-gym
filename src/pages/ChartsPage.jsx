@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { Chart as ChartJS, ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend } from "chart.js";
 import { Bar, Pie } from "react-chartjs-2";
-import axiosInstance from "../utils/AxiosInstance"; // Ensure this path matches your project structure
+import axiosInstance from "../utils/AxiosInstance";
+import * as XLSX from "xlsx";
 
 // Register required Chart.js components
 ChartJS.register(ArcElement, CategoryScale, LinearScale, BarElement, Tooltip, Legend);
@@ -137,12 +138,100 @@ const [attendanceCustomData, setAttendanceCustomData] = useState([]);
       alert("Hubo un error al obtener el reporte.");
     }
   };
+
+
+  const generateExcel = async () => {
+    
+    console.log(customDateRange.dateA === "");
+    console.log(customDateRange.dateB);
+    console.log(attendanceCustomRange.dateA);
+    console.log(attendanceCustomRange.dateB);
+    if (customDateRange.dateA === "" || attendanceCustomRange.dateA === "" || customDateRange.dateB === "" || attendanceCustomRange.dateB === "" ) {
+      alert("Porfavor seleccione todos los rangos de fecha para generar el archivo.");
+      return;
+    }
+  
+  
+    try {
+      // Fetch data from all four APIs
+      const [membershipsReport, attendancesReport, membershipsByDateReport, attendancesByDateReport] = await Promise.all([
+        axiosInstance.get("/reports/membershipsReport"),
+        axiosInstance.get("/reports/attendancesReport"),
+        axiosInstance.post("/reports/membershipsBayDateReport", customDateRange),
+        axiosInstance.post("/reports/attendancesByDateReport",  {
+          dateA: attendanceCustomRange.dateA,
+          dateB: attendanceCustomRange.dateB,
+        }),
+      ]);
+  
+      // Create a workbook
+      const workbook = XLSX.utils.book_new();
+  
+      // Prepare data for each report
+      const membershipsData = [
+        ["Periodo", "Nuevas Membresías", "Ingresos Totales", "Membresías Vencidas"],
+        ...membershipsReport.data.data.map((item) => [
+          item.periodo,
+          item.nuevas_membresias,
+          item.ingresos_totales,
+          item.membresias_vencidas,
+        ]),
+      ];
+  
+      const attendancesData = [
+        ["Periodo", "Asistencias Totales", "Clientes Únicos"],
+        ...attendancesReport.data.data.map((item) => [
+          item.periodo,
+          item.asistencias_totales,
+          item.clientes,
+        ]),
+      ];
+  
+      const membershipsByDateData = [
+        ["Fecha", "Nuevas Membresías", "Ingresos Totales", "Membresías Vencidas"],
+        ...membershipsByDateReport.data.data.map((item) => [
+          new Date(item.fecha).toLocaleDateString("es-ES"),
+          item.nuevas_membresias,
+          item.ingresos_totales,
+          item.membresias_vencidas,
+        ]),
+      ];
+  
+      const attendancesByDateData = [
+        ["Fecha", "Asistencias Totales", "Clientes Únicos"],
+        ...attendancesByDateReport.data.data.map((item) => [
+          new Date(item.fecha).toLocaleDateString("es-ES"),
+          item.asistencias_totales,
+          item.clientes,
+        ]),
+      ];
+  
+      // Add sheets to the workbook
+      const membershipsSheet = XLSX.utils.aoa_to_sheet(membershipsData);
+      XLSX.utils.book_append_sheet(workbook, membershipsSheet, "Reporte de Membresias");
+  
+      const attendancesSheet = XLSX.utils.aoa_to_sheet(attendancesData);
+      XLSX.utils.book_append_sheet(workbook, attendancesSheet, "Reporte de Asistencias");
+  
+      const membershipsByDateSheet = XLSX.utils.aoa_to_sheet(membershipsByDateData);
+      XLSX.utils.book_append_sheet(workbook, membershipsByDateSheet, "Membresias por Fechas");
+  
+      const attendancesByDateSheet = XLSX.utils.aoa_to_sheet(attendancesByDateData);
+      XLSX.utils.book_append_sheet(workbook, attendancesByDateSheet, "Asistencias por Fechas");
+  
+      // Generate and download the Excel file
+      XLSX.writeFile(workbook, "Reporte_Smash_Gym.xlsx");
+    } catch (error) {
+      console.error("Error generating Excel:", error);
+    }
+  };
+  
   
   
   
 
   return (
-    <div className="min-h-screen bg-gray-100 p-8">
+    <div className="min-h-screen bg-[#834f9b] p-8">
       <div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg p-6">
         <h1 className="text-3xl font-bold mb-6">Panel de Control</h1>
         <div className="flex justify-end mb-4">
@@ -183,77 +272,77 @@ const [attendanceCustomData, setAttendanceCustomData] = useState([]);
       </div>
 
 
-      <div className="mt-8 bg-white p-6 rounded-lg shadow-lg">
-  <h2 className="text-2xl font-bold mb-4">Reporte por Rango de Fechas</h2>
-  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-    <div>
-      <label htmlFor="dateA" className="block font-bold mb-2">Fecha Inicio:</label>
-      <input
-        type="date"
-        id="dateA"
-        name="dateA"
-        value={customDateRange.dateA}
-        onChange={handleDateChange}
-        className="border px-4 py-2 rounded-lg w-full"
-      />
-    </div>
-    <div>
-      <label htmlFor="dateB" className="block font-bold mb-2">Fecha Fin:</label>
-      <input
-        type="date"
-        id="dateB"
-        name="dateB"
-        value={customDateRange.dateB}
-        onChange={handleDateChange}
-        className="border px-4 py-2 rounded-lg w-full"
-      />
-    </div>
-  </div>
-  <button
-    onClick={fetchCustomDateRangeData}
-    className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition duration-200"
-  >
-    Generar Reporte
-  </button>
+      <div className="max-w-7xl mx-auto mt-8 bg-white p-6 rounded-lg shadow-lg p-6">
+        <h2 className="text-2xl font-bold mb-4">Reporte por Rango de Fechas</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+          <div>
+            <label htmlFor="dateA" className="block font-bold mb-2">Fecha Inicio:</label>
+            <input
+              type="date"
+              id="dateA"
+              name="dateA"
+              value={customDateRange.dateA}
+              onChange={handleDateChange}
+              className="border px-4 py-2 rounded-lg w-1/2"
+            />
+          </div>
+          <div>
+            <label htmlFor="dateB" className="block font-bold mb-2">Fecha Fin:</label>
+            <input
+              type="date"
+              id="dateB"
+              name="dateB"
+              value={customDateRange.dateB}
+              onChange={handleDateChange}
+              className="border px-4 py-2 rounded-lg w-1/2"
+            />
+          </div>
+        </div>
+        <button
+          onClick={fetchCustomDateRangeData}
+          className="bg-[#0bae90] text-white px-4 py-2 rounded-lg hover:bg-emerald-300 transition duration-200"
+        >
+          Generar Reporte
+        </button>
 
-  {customLoading ? (
-    <p className="mt-6">Cargando datos...</p>
-  ) : customError ? (
-    <p className="mt-6 text-red-500">{customError}</p>
-  ) : customDateData.length > 0 ? (
-    <div className="mt-6">
-      <h3 className="text-lg font-bold mb-4">Resultados del Rango Seleccionado</h3>
-      <Bar
-        data={{
-          labels: customDateData.map((item) => new Date(item.fecha).toLocaleDateString("es-ES")),
-          datasets: [
-            {
-              label: "Nuevas Membresías",
-              data: customDateData.map((item) => parseInt(item.nuevas_membresias, 10)),
-              backgroundColor: "#4CAF50",
-            },
-            {
-              label: "Ingresos Totales",
-              data: customDateData.map((item) => parseFloat(item.ingresos_totales)),
-              backgroundColor: "#3B82F6",
-            },
-            {
-              label: "Membresías Vencidas",
-              data: customDateData.map((item) => parseInt(item.membresias_vencidas, 10)),
-              backgroundColor: "#FF9800",
-            },
-          ],
-        }}
-      />
-    </div>
-  ) : (
-    <p className="mt-6">No hay datos disponibles para este rango de fechas.</p>
-  )}
-</div>
+        {customLoading ? (
+          <p className="mt-6">Cargando datos...</p>
+        ) : customError ? (
+          <p className="mt-6 text-red-500">{customError}</p>
+        ) : customDateData.length > 0 ? (
+          <div className="mt-6">
+            <h3 className="text-lg font-bold mb-4">Resultados del Rango Seleccionado</h3>
+            <Bar
+              data={{
+                labels: customDateData.map((item) => new Date(item.fecha).toLocaleDateString("es-ES")),
+                datasets: [
+                  {
+                    label: "Nuevas Membresías",
+                    data: customDateData.map((item) => parseInt(item.nuevas_membresias, 10)),
+                    backgroundColor: "#4CAF50",
+                  },
+                  {
+                    label: "Ingresos Totales",
+                    data: customDateData.map((item) => parseFloat(item.ingresos_totales)),
+                    backgroundColor: "#3B82F6",
+                  },
+                  {
+                    label: "Membresías Vencidas",
+                    data: customDateData.map((item) => parseInt(item.membresias_vencidas, 10)),
+                    backgroundColor: "#FF9800",
+                  },
+                ],
+              }}
+            />
+          </div>
+        ) : (
+          <p className="mt-6">No hay datos disponibles para este rango de fechas.</p>
+        )}
+      </div>
 
 
  {/* Asistencias */}
- <div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg p-6">
+ <div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg p-6 mt-8">
  <div className="mb-8">
   <h2 className="text-2xl font-bold mb-4">Reporte de Asistencias</h2>
   <div className="flex justify-end mb-4">
@@ -287,7 +376,7 @@ const [attendanceCustomData, setAttendanceCustomData] = useState([]);
 
 {/* Asistencias por rango*/}
 
-<div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg p-6">
+<div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg p-6 mt-8">
 <div className="mb-8">
   <h2 className="text-2xl font-bold mb-4">Asistencias por Rango de Fecha</h2>
   <div className="flex justify-between mb-4">
@@ -306,10 +395,10 @@ const [attendanceCustomData, setAttendanceCustomData] = useState([]);
       />
     </div>
     <button
-      className="bg-blue-500 text-white px-4 py-2 rounded-lg"
+      className="bg-[#0bae90] text-white hover:bg-emerald-300 px-4 py-2 rounded-lg"
       onClick={fetchCustomAttendanceData}
     >
-      Aplicar
+      Generar Reporte
     </button>
   </div>
   <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -323,6 +412,15 @@ const [attendanceCustomData, setAttendanceCustomData] = useState([]);
     </div>
   </div>
 </div>
+</div>
+
+<div className="flex justify-center items-center mt-6">
+  <button
+    onClick={generateExcel}
+    className="bg-[#0bae90] text-white px-8 py-4 text-lg font-jaro rounded hover:bg-emerald-300"
+  >
+    Generar Reporte en Excel
+  </button>
 </div>
 
 
