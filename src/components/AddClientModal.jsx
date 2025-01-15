@@ -18,6 +18,9 @@ export default function AddClientModal({ onClose }) {
 
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+    
+
+    
 
     const fieldConfig = {
         ci: {
@@ -39,8 +42,7 @@ export default function AddClientModal({ onClose }) {
         },
         cell: {
             label: "Celular",
-            type: "tel",
-            pattern: "^[0-9]{8}$",
+            type: "number",
             errorMessage: "Ingrese un número de celular válido de 8 dígitos.",
         },
         bday: {
@@ -62,23 +64,11 @@ export default function AddClientModal({ onClose }) {
         },
         emergCell: {
             label: "Teléfono de Emergencia",
-            type: "tel",
-            pattern: "^[0-9]+$",
+            type: "number",
             errorMessage: "Ingrese un número de teléfono válido.",
-        },
-        photo: {
-            label: "Foto",
-            type: "button",
-            onClick: () => alert("Abrir modal para tomar foto (por implementar)."),
-        },
-        status: {
-            label: "Estado",
-            type: "select",
-            options: [
-                { value: "activo", label: "Activo" },
-                { value: "inactivo", label: "Inactivo" },
-            ],
-        },
+        }
+      
+     
     };
 
     const handleChange = (e) => {
@@ -95,18 +85,28 @@ export default function AddClientModal({ onClose }) {
         setFormData({ ...formData, [name]: value });
     };
 
+    
+      
+      
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
 
+
+        const submissionData = {
+            ...formData,
+            email: formData.email === "" ? null : formData.email
+
+        };
+
         try {
-            const response = await axiosInstance.post("/clients/addNew", formData);
+            const response = await axiosInstance.post("/clients/addNew", submissionData);
 
             setSuccess(response.data.message);
             setTimeout(() => {
                 onClose();
-                onAdd(response.data.client);
-            }, 2000);
+            }, 2300);
         } catch (err) {
             console.error("Error adding client:", err);
 
@@ -192,6 +192,8 @@ export default function AddClientModal({ onClose }) {
                     </div>
                 </form>
             </div>
+
+             
             
         </div>
     );

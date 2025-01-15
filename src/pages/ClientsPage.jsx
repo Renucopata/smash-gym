@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../utils/AxiosInstance";
 import AddClientModal from "../components/AddClientModal";
+import ClientsDetailModal from "../components/ClientsDetailModal";
+import EditClient from "../components/EdtiClient";
 
 const ClientsPage = () => {
   const [activeTab, setActiveTab] = useState("all");
@@ -8,10 +10,23 @@ const ClientsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [clients, setClients] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const itemsPerPage = 15;
+  const [selectedClient, setSelectedClient] = useState(null); // To store the client to display
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false); // To control the modal visibility
+  const [searchedClients, setSearchedClients] = useState([]);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+
+
+  const itemsPerPage = 100;
 
   const openModal = () => setIsModalOpen(true);
   const closeModal = () => setIsModalOpen(false);
+
+
+  const openEdit = (id) => {
+    setSelectedClient(id);
+    setIsEditOpen(true);
+  }
+  const closeEdit = () => setIsEditOpen(false);
 
   // Fetch clients from API
   useEffect(() => {
@@ -27,6 +42,29 @@ const ClientsPage = () => {
     fetchClients();
   }, []);
 
+  useEffect(() => {
+    const query = searchQuery.toLowerCase();
+    const filtered = clients.filter(
+      (client) =>
+        client.carnet_identidad.toString().includes(query) || // Search by ID
+        client.apellido.toLowerCase().includes(query) // Search by Last Name
+    );
+    setSearchedClients(filtered);
+    setCurrentPage(1); // Reset to the first page whenever the search query changes
+  }, [searchQuery, clients]);
+
+
+  const openDetailsModal = (id) => {
+    setSelectedClient(id); // Only store the ID
+    setIsDetailsModalOpen(true); // Open the modal
+  };
+  
+  const closeDetailsModal = () => {
+    setSelectedClient(null);
+    setIsDetailsModalOpen(false);
+  };
+
+
   // Filter clients based on active tab
   const filteredClients = clients.filter((client) => {
     if (activeTab === "active") return client.estado === "activo";
@@ -35,7 +73,7 @@ const ClientsPage = () => {
   });
 
   // Pagination logic
-  const paginatedClients = filteredClients.slice(
+  const paginatedClients = searchedClients.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -106,18 +144,43 @@ const ClientsPage = () => {
                   <th className="border-b p-2">Nombre</th>
                   <th className="border-b p-2">Apellido</th>
                   <th className="border-b p-2">Estado</th>
+                  <th className="border-b p-2">Añadido en</th>
+                  <th className="border-b p-2">Acciones</th>
                 </tr>
               </thead>
-              <tbody>
-                {paginatedClients.map((client) => (
-                  <tr key={client.carnet_identidad} className="hover:bg-gray-50">
-                    <td className="p-2 border-b">{client.carnet_identidad}</td>
-                    <td className="p-2 border-b">{client.nombre}</td>
-                    <td className="p-2 border-b">{client.apellido}</td>
-                    <td className="p-2 border-b">{client.estado}</td>
-                  </tr>
-                ))}
-              </tbody>
+                      <tbody>
+             {paginatedClients.map((client) => (
+            <tr key={client.carnet_identidad} className="hover:bg-gray-50">
+              <td className="p-2 border-b">{client.carnet_identidad}</td>
+              <td className="p-2 border-b">{client.nombre}</td>
+              <td className="p-2 border-b">{client.apellido}</td>
+              <td className="p-2 border-b">{client.estado}</td>
+              <td className="p-2 border-b">
+                {new Date(client.created_at).toLocaleDateString('es-ES', {
+                  day: '2-digit',
+                  month: '2-digit',
+                  year: 'numeric'
+                })}
+              </td>
+              <td className="p-2 border-b">
+                <button
+                  onClick={() => openDetailsModal(client.carnet_identidad)}
+                  className="mr-2 hover:text-gray-400"
+                >
+                  <i class="fa-solid fa-circle-info"></i>
+                </button>
+                <button
+                  onClick={() => openEdit(client.carnet_identidad)}
+                  className="mr-2 hover:text-gray-400"
+                >
+                  <i class="fa-solid fa-pen-to-square"></i>
+                </button>
+              
+              </td>
+            </tr>
+          ))}
+        </tbody>
+
             </table>
             </div>
           </div>
@@ -147,6 +210,18 @@ const ClientsPage = () => {
         onClose={closeModal}
         />
       )}
+              {isDetailsModalOpen && (
+                  <ClientsDetailModal
+                    clientId={selectedClient}
+                    onClose={closeDetailsModal}
+                  />
+                        )}
+        {isEditOpen && (
+          <EditClient
+          clientId={selectedClient}
+          onClose={closeEdit} />
+        )}
+
     </div>
   );
 };

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../utils/AxiosInstance";
 import AddMemberModal from "../components/AddMemberModal";
+import MembershipsDetailsModal from "../components/MembershipsDetailModal";
 
 
 const MembershipsPage = () => {
@@ -9,10 +10,12 @@ const MembershipsPage = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedClient, setSelectedClient] = useState(null); // To store the client to display
+  const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
+  const [searchedMemberships, setSearchedMemberships] = useState([]);
   const handleModalClose = () => setIsModalOpen(false);
 
-  const itemsPerPage = 10;
-
+  const itemsPerPage = 100;
 
   // Fetch memberships from the API
   useEffect(() => {
@@ -29,13 +32,34 @@ const MembershipsPage = () => {
     fetchMemberships();
   }, []);
 
-  // Filter memberships based on search query
+  useEffect(() => {
+      const query = searchQuery.toLowerCase();
+      const filtered = memberships.filter(
+        (membership) =>
+          membership.carnet_identidad_cliente.toString().includes(query)
+
+      );
+      setSearchedMemberships(filtered);
+      setCurrentPage(1); // Reset to the first page whenever the search query changes
+    }, [searchQuery, memberships]);
+
+
+  const openDetailsModal = (id) => {
+    setSelectedClient(id); // Only store the ID
+    setIsDetailsModalOpen(true); // Open the modal
+  };
+  
+  const closeDetailsModal = () => {
+    setSelectedClient(null);
+    setIsDetailsModalOpen(false);
+  };
+  /* Filter memberships based on search query
   const filteredData = memberships.filter((membership) =>
     membership.carnet_identidad_cliente.includes(searchQuery)
-  );
+  );*/
 
   // Paginate memberships
-  const paginatedData = filteredData.slice(
+  const paginatedData = searchedMemberships.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
@@ -64,7 +88,8 @@ const MembershipsPage = () => {
         </div>
 
         {/* Memberships List */}
-        <div className="bg-white shadow-md rounded-lg p-4 overflow-hidden">
+        <div className="bg-white shadow-md rounded-lg p-4">
+          <div className="h-[400px] overflow-y-auto">
           {error ? (
             <p className="text-red-600 font-medium mb-4">{error}</p>
           ) : memberships.length > 0 ? (
@@ -79,6 +104,7 @@ const MembershipsPage = () => {
                   <th className="border-b p-2">Descuento</th>
                   <th className="border-b p-2">Método de Pago</th>
                   <th className="border-b p-2">Inscrito por</th>
+                  <th className="border-b p-2">Acciones</th>
                 </tr>
               </thead>
               <tbody>
@@ -87,10 +113,18 @@ const MembershipsPage = () => {
                     <td className="p-2 border-b">{membership.id}</td>
                     <td className="p-2 border-b">{membership.carnet_identidad_cliente}</td>
                     <td className="p-2 border-b">
-                      {new Date(membership.fecha_inicio).toLocaleDateString()}
+                    {new Date(membership.fecha_inicio).toLocaleDateString('es-ES', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric'
+                          })}
                     </td>
                     <td className="p-2 border-b">
-                      {new Date(membership.fecha_fin).toLocaleDateString()}
+                    {new Date(membership.fecha_fin).toLocaleDateString('es-ES', {
+                              day: '2-digit',
+                              month: '2-digit',
+                              year: 'numeric'
+                          })}
                     </td>
                     <td className="p-2 border-b">{membership.monto_pagado}</td>
                     <td className="p-2 border-b">
@@ -98,6 +132,21 @@ const MembershipsPage = () => {
                     </td>
                     <td className="p-2 border-b">{membership.metodo_pago}</td>
                     <td className="p-2 border-b">{membership.inscrito_por}</td>
+                    <td className="p-2 border-b">
+                        <button
+                          onClick={() => openDetailsModal(membership.id)}
+                          className="mr-2 hover:text-gray-400"
+                        >
+                          <i class="fa-solid fa-circle-info"></i>
+                        </button>
+                        <button
+                          onClick={() => openDetailsModal(membership.id)}
+                          className="mr-2 hover:text-gray-400"
+                        >
+                          <i class="fa-solid fa-pen-to-square"></i>
+                        </button>
+                      
+                      </td>
                   </tr>
                 ))}
               </tbody>
@@ -106,10 +155,10 @@ const MembershipsPage = () => {
             <p className="text-gray-500">No hay membresías registradas.</p>
           )}
         </div>
-
+        </div>
         {/* Pagination */}
         <div className="flex justify-end mt-4">
-          {Array.from({ length: Math.ceil(filteredData.length / itemsPerPage) }).map((_, index) => (
+          {Array.from({ length: Math.ceil(searchedMemberships.length / itemsPerPage) }).map((_, index) => (
             <button
               key={index}
               className={`mx-1 px-3 py-1 rounded ${
@@ -132,6 +181,12 @@ const MembershipsPage = () => {
             setSuccessMessage(message);
             // Optionally: show a toast or other notification
           }}
+        />
+      )}
+      {isDetailsModalOpen && (
+        <MembershipsDetailsModal
+          membershipId={selectedClient}
+          onClose={closeDetailsModal}
         />
       )}
     </div>

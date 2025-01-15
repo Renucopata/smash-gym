@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState} from "react";
 import axiosInstance from '../utils/AxiosInstance';
 
 export default function AddMemberModal({onClose, onAdd}) {
@@ -236,7 +236,7 @@ export default function AddMemberModal({onClose, onAdd}) {
                         </button>
                         <button
                             type="submit"
-                            className="bg-[#0bae90] text-white px-6 py-2 rounded hover:bg-emerald-300"
+                            className="font-jaro bg-[#0bae90] text-white px-4 py-2 rounded shadow hover:bg-emerald-300"
                         >
                             Guardar
                         </button>

@@ -31,7 +31,7 @@ export default function Sidebar() {
           to="/charts"
           className="py-2 px-4 hover:bg-[#d9bddc] after:block after:h-1 after:w-full after:bg-gradient-to-r after:from-[#3b3b41] after:to-transparent"
         >
-          Estadísticas
+          Reportes
         </Link>
         <Link
           to="/clients"
