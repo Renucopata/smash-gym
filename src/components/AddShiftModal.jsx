@@ -19,11 +19,15 @@ export default function AddShiftModal({ onClose, carnetIdentidad }) {
     }
 
     try {
+      console.log(carnetIdentidad);
+      console.log(horaEntrada);
+      console.log(horaSalida);
+
       const response = await axiosInstance.post("/auth/addShift", {
-        trabajador: carnetIdentidad,
-        dias,
-        hora_entrada: horaEntrada,
-        hora_salida: horaSalida,
+        ci: carnetIdentidad,
+        days: dias,
+        entrance: horaEntrada,
+        exit: horaSalida,
       });
 
       if (response.data.message) {
@@ -32,6 +36,10 @@ export default function AddShiftModal({ onClose, carnetIdentidad }) {
         setHoraEntrada("");
         setHoraSalida("");
       }
+
+      setTimeout(() => {
+        onClose();
+    }, 1000);
     } catch (err) {
       setError("Error al agregar el turno. Por favor, intente nuevamente.");
     }

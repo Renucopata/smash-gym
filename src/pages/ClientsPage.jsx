@@ -3,6 +3,7 @@ import axiosInstance from "../utils/AxiosInstance";
 import AddClientModal from "../components/AddClientModal";
 import ClientsDetailModal from "../components/ClientsDetailModal";
 import EditClient from "../components/EdtiClient";
+import DeleteClient from "../components/DeleteClient";
 
 const ClientsPage = () => {
   const [activeTab, setActiveTab] = useState("all");
@@ -14,6 +15,8 @@ const ClientsPage = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false); // To control the modal visibility
   const [searchedClients, setSearchedClients] = useState([]);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+
 
 
   const itemsPerPage = 100;
@@ -27,6 +30,12 @@ const ClientsPage = () => {
     setIsEditOpen(true);
   };
   const closeEdit = () => setIsEditOpen(false);
+
+  const openDelete = (id) => {
+    setSelectedClient(id);
+    setIsDeleteOpen(true);
+  };
+  const closeDelete = () => setIsDeleteOpen(false);
 
   // Fetch clients from API
   useEffect(() => {
@@ -175,6 +184,12 @@ const ClientsPage = () => {
                 >
                   <i class="fa-solid fa-pen-to-square"></i>
                 </button>
+                <button
+                  onClick={() => openDelete(client.carnet_identidad)}
+                  className="mr-2 hover:text-gray-400"
+                >
+                  <i class="fa-solid fa-trash-can"></i>
+                </button>
               
               </td>
             </tr>
@@ -220,6 +235,12 @@ const ClientsPage = () => {
           <EditClient
           clientId={selectedClient}
           onClose={closeEdit} />
+        )}
+
+        {isDeleteOpen && (
+          <DeleteClient 
+          id={selectedClient}
+          onClose={closeDelete}/>
         )}
 
     </div>

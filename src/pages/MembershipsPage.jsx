@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import axiosInstance from "../utils/AxiosInstance";
 import AddMemberModal from "../components/AddMemberModal";
 import MembershipsDetailsModal from "../components/MembershipsDetailModal";
+import DeleteMembership from "../components/DeleteMembership";
 
 
 const MembershipsPage = () => {
@@ -14,6 +15,7 @@ const MembershipsPage = () => {
   const [isDetailsModalOpen, setIsDetailsModalOpen] = useState(false);
   const [searchedMemberships, setSearchedMemberships] = useState([]);
   const handleModalClose = () => setIsModalOpen(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
   const itemsPerPage = 100;
 
@@ -53,10 +55,14 @@ const MembershipsPage = () => {
     setSelectedClient(null);
     setIsDetailsModalOpen(false);
   };
-  /* Filter memberships based on search query
-  const filteredData = memberships.filter((membership) =>
-    membership.carnet_identidad_cliente.includes(searchQuery)
-  );*/
+
+
+  const openDelete = (id) =>{
+    setSelectedClient(id);
+    setIsDeleteOpen(true);
+  }
+ 
+  const closeDelete = () => {setIsDeleteOpen(false)};
 
   // Paginate memberships
   const paginatedData = searchedMemberships.slice(
@@ -140,10 +146,10 @@ const MembershipsPage = () => {
                           <i class="fa-solid fa-circle-info"></i>
                         </button>
                         <button
-                          onClick={() => openDetailsModal(membership.id)}
+                          onClick={() => openDelete(membership.id)}
                           className="mr-2 hover:text-gray-400"
                         >
-                          <i class="fa-solid fa-pen-to-square"></i>
+                          <i class="fa-solid fa-trash-can"></i>
                         </button>
                       
                       </td>
@@ -188,6 +194,11 @@ const MembershipsPage = () => {
           membershipId={selectedClient}
           onClose={closeDetailsModal}
         />
+      )}
+      {isDeleteOpen && (
+        <DeleteMembership 
+        id={selectedClient}
+        onClose={closeDelete}/>
       )}
     </div>
   );

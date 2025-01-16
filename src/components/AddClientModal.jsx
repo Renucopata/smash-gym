@@ -106,7 +106,7 @@ export default function AddClientModal({ onClose }) {
             setSuccess(response.data.message);
             setTimeout(() => {
                 onClose();
-            }, 2300);
+            }, 2000);
         } catch (err) {
             console.error("Error adding client:", err);
 

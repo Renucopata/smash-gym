@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import axiosInstance from "../utils/AxiosInstance";
 import EmployeeEdit from "../components/EmployeeEdit";
 import EmployeeInfo from "../components/EmployeeInfo";
 import EmployeeShift from "../components/EmployeeShift";
 import AddShiftModal from "../components/AddShiftModal";
+import DeleteEmployee from "../components/DeleteEmployee";
 
 
 const EmployeesPage = () => {
@@ -16,7 +18,10 @@ const EmployeesPage = () => {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isShiftOpen, setIsShiftOpen] = useState(false);
   const [isAddShiftOpen, setIsAddShiftOpen] = useState(false);
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const itemsPerPage = 10;
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -51,10 +56,17 @@ const EmployeesPage = () => {
     setIsAddShiftOpen(true);
   };
 
+  const openDelete = (id) => {
+    setSelectedEmployee(id);
+    setIsDeleteOpen(true);
+  };
+
   const closeInfo = () => {setIsInfoOpen(false)};
   const closeEdit = () => {setIsEditOpen(false)};
   const closeShift = () => {setIsShiftOpen(false)};
   const closeAddShift = () => {setIsAddShiftOpen(false)};
+  const closeDelete = () => {setIsDeleteOpen(false)};
+
 
   const filteredData = employees
     .filter((employee) => {
@@ -72,6 +84,24 @@ const EmployeesPage = () => {
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
+
+  const goAddEmployees = () => {
+    navigate("/AddEmployees")
+  }
+
+  const formatDate = (isoString) => {
+    try {
+      const date = new Date(isoString);
+      return date.toLocaleDateString("es-ES", {
+        year: "numeric",
+        month: "long",
+        day: "2-digit",
+      });
+    } catch (error) {
+        console.log(error)
+      return "Fecha no válida";
+    }
+  };
 
   return (
     <div className="min-h-screen bg-gray-100 flex justify-center items-center">
@@ -123,7 +153,8 @@ const EmployeesPage = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="font-jaro bg-gray-200 border rounded px-4 py-2 w-1/3"
           />
-          <button className="font-jaro bg-[#0bae90] text-white px-4 py-2 rounded shadow hover:bg-emerald-300">
+          <button className="font-jaro bg-[#0bae90] text-white px-4 py-2 rounded shadow hover:bg-emerald-300"
+          onClick={goAddEmployees}>
             Añadir Personal
           </button>
         </div>
@@ -151,7 +182,7 @@ const EmployeesPage = () => {
                   <td className="p-2 border-b">{employee.apellido}</td>
                   <td className="p-2 border-b">{employee.rol}</td>
                   <td className="p-2 border-b">
-                    {new Date(employee.hireDate).toLocaleDateString("es-ES")}
+                    {formatDate(employee.fecha_contratacion)}
                   </td>
                   <td className="p-2 border-b">
                     <span
@@ -184,6 +215,11 @@ const EmployeesPage = () => {
                               onClick={() => openAddShift(employee.carnet_identidad)}>
                                 <i class="fa-regular fa-calendar-plus"></i>
                       </button>
+                      <button className="mr-2 hover:text-gray-400"
+                              onClick={() => openDelete(employee.carnet_identidad)}>
+                                <i class="fa-solid fa-trash-can"></i>
+                      </button>
+
 
                   </td>
                 </tr>
@@ -216,6 +252,7 @@ const EmployeesPage = () => {
       {isEditOpen &&(<EmployeeEdit onClose={closeEdit} carnetIdentidad={selectedEmployee}/>)}
       {isShiftOpen && (<EmployeeShift onClose={closeShift} carnetIdentidad={selectedEmployee}/>)}
       {isAddShiftOpen && (<AddShiftModal onClose={closeAddShift} carnetIdentidad={selectedEmployee}/>)}
+      {isDeleteOpen && (<DeleteEmployee onClose={closeDelete} id={selectedEmployee}/>)}
     </div>
   );
 };

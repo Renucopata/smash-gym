@@ -10,8 +10,9 @@ export const AuthProvider = ({ children }) => {
   const navigate = useNavigate();
 
   // Login function
-  const login = (newToken) => {
+  const login = (newToken, newRol) => {
     localStorage.setItem("token", newToken);
+    localStorage.setItem("rol", newRol)
     setToken(newToken);
     setIsAuthenticated(true);
     navigate("/dashboard");
@@ -20,6 +21,7 @@ export const AuthProvider = ({ children }) => {
   // Logout function
   const logout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("rol");
     setToken(null);
     setIsAuthenticated(false);
     navigate("/");

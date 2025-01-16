@@ -11,7 +11,7 @@ export default function MembershipDetailsModal({ membershipId, onClose }) {
     const fetchMembershipData = async () => {
       try {
         const response = await axiosInstance.get(
-          `http://localhost:5000/api/memberships/getOne/${membershipId}`
+          `/memberships/getOne/${membershipId}`
         );
         const data = response.data.data[0];
         console.log(data);

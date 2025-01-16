@@ -36,7 +36,7 @@ export default function Login() {
       });
 
       // Save token using AuthContext
-      login(response.data.token);
+      login(response.data.token, response.data.rol);
 
       // Navigate to the dashboard or other authenticated route
       navigate("/dashboard");
