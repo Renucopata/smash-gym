@@ -25,7 +25,7 @@ const ClientsPage = () => {
   const openEdit = (id) => {
     setSelectedClient(id);
     setIsEditOpen(true);
-  }
+  };
   const closeEdit = () => setIsEditOpen(false);
 
   // Fetch clients from API

@@ -1,40 +1,72 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import axiosInstance from "../utils/AxiosInstance";
+import EmployeeEdit from "../components/EmployeeEdit";
+import EmployeeInfo from "../components/EmployeeInfo";
+import EmployeeShift from "../components/EmployeeShift";
+import AddShiftModal from "../components/AddShiftModal";
 
-const employeeData = [
-  {
-    id: 1,
-    name: "John Doe",
-    position: "Gerente",
-    hireDate: "2020-05-10",
-    status: "active",
-  },
-  {
-    id: 2,
-    name: "Jane Smith",
-    position: "Recepcionista",
-    hireDate: "2022-01-15",
-    status: "on leave",
-  },
-  {
-    id: 3,
-    name: "Mark Johnson",
-    position: "Entrenador",
-    hireDate: "2021-11-25",
-    status: "inactive",
-  },
-];
 
 const EmployeesPage = () => {
+  const [employees, setEmployees] = useState([]);
   const [activeTab, setActiveTab] = useState("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const itemsPerPage = 5;
+  const [selectedEmployee, setSelectedEmployee] = useState(null);
+  const [isInfoOpen, setIsInfoOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isShiftOpen, setIsShiftOpen] = useState(false);
+  const [isAddShiftOpen, setIsAddShiftOpen] = useState(false);
+  const itemsPerPage = 10;
 
-  const filteredData = employeeData.filter((employee) => {
-    if (activeTab === "active") return employee.status === "active";
-    if (activeTab === "inactive") return employee.status === "inactive";
-    return true; // For "all"
-  });
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      try {
+        const response = await axiosInstance.get("/auth/getEmployees");
+        setEmployees(response.data.data);
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+      }
+    };
+    fetchEmployees();
+  }, []);
+
+
+  const openInfo = (id) => {
+    setSelectedEmployee(id);
+    setIsInfoOpen(true);
+  };
+
+  const openEdit = (id) => {
+    setSelectedEmployee(id);
+    setIsEditOpen(true);
+  };
+
+  const openShift = (id) => {
+    setSelectedEmployee(id);
+    setIsShiftOpen(true);
+  };
+
+  const openAddShift = (id) => {
+    setSelectedEmployee(id);
+    setIsAddShiftOpen(true);
+  };
+
+  const closeInfo = () => {setIsInfoOpen(false)};
+  const closeEdit = () => {setIsEditOpen(false)};
+  const closeShift = () => {setIsShiftOpen(false)};
+  const closeAddShift = () => {setIsAddShiftOpen(false)};
+
+  const filteredData = employees
+    .filter((employee) => {
+      if (activeTab === "active") return employee.estado === "activo";
+      if (activeTab === "inactive") return employee.estado === "inactivo";
+      return true; // For "all"
+    })
+    .filter(
+      (employee) =>
+        employee.carnet_identidad.toString().includes(searchQuery) ||
+        employee.nombre.toLowerCase().includes(searchQuery)
+    );
 
   const paginatedData = filteredData.slice(
     (currentPage - 1) * itemsPerPage,
@@ -60,7 +92,10 @@ const EmployeesPage = () => {
                     ? "text-[#834f9b] font-semibold"
                     : "text-gray-500 hover:text-gray-800"
                 }`}
-                onClick={() => setActiveTab(tab)}
+                onClick={() => {
+                  setActiveTab(tab);
+                  setCurrentPage(1);
+                }}
               >
                 {tab === "all" && "Todo el personal"}
                 {tab === "active" && "Personal Activo"}
@@ -94,41 +129,68 @@ const EmployeesPage = () => {
         </div>
 
         {/* Employee List */}
-        <div className="bg-white shadow-md rounded-lg p-4 overflow-hidden">
+        <div className="bg-white shadow-md rounded-lg p-4">
+        <div className="h-[400px] overflow-y-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr>
                 <th className="border-b p-2">Carnet</th>
                 <th className="border-b p-2">Nombre</th>
-                <th className="border-b p-2">Puesto</th>
+                <th className="border-b p-2">Apellido</th>
+                <th className="border-b p-2">Rol</th>
                 <th className="border-b p-2">Fecha de empleo</th>
                 <th className="border-b p-2">Estatus</th>
+                <th className="border-b p-2">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {paginatedData.map((employee) => (
-                <tr key={employee.id} className="hover:bg-gray-50">
-                  <td className="p-2 border-b">{employee.id}</td>
-                  <td className="p-2 border-b">{employee.name}</td>
-                  <td className="p-2 border-b">{employee.position}</td>
-                  <td className="p-2 border-b">{employee.hireDate}</td>
+                <tr key={employee.carnet_identidad} className="hover:bg-gray-50">
+                  <td className="p-2 border-b">{employee.carnet_identidad}</td>
+                  <td className="p-2 border-b">{employee.nombre}</td>
+                  <td className="p-2 border-b">{employee.apellido}</td>
+                  <td className="p-2 border-b">{employee.rol}</td>
+                  <td className="p-2 border-b">
+                    {new Date(employee.hireDate).toLocaleDateString("es-ES")}
+                  </td>
                   <td className="p-2 border-b">
                     <span
                       className={`px-2 py-1 text-xs font-semibold rounded-full ${
-                        employee.status === "active"
+                        employee.status === "estado"
                           ? "bg-green-100 text-green-800"
                           : employee.status === "on leave"
                           ? "bg-yellow-100 text-yellow-800"
                           : "bg-red-100 text-red-800"
                       }`}
                     >
-                      {employee.status}
+                      {employee.estado}
                     </span>
+                  </td >
+
+                  <td className="p-2 border-b">
+                      <button className="mr-2 hover:text-gray-400"
+                              onClick={() => openInfo(employee.carnet_identidad)}>
+                                <i class="fa-solid fa-circle-info"></i>
+                      </button>
+                      <button className="mr-2 hover:text-gray-400"
+                              onClick={() => openEdit(employee.carnet_identidad)}>
+                                <i class="fa-solid fa-pen-to-square"></i>
+                      </button>
+                      <button className="mr-2 hover:text-gray-400"
+                              onClick={() => openShift(employee.carnet_identidad)}>
+                                <i class="fa-regular fa-calendar-days"></i>
+                      </button>
+                      <button className="mr-2 hover:text-gray-400"
+                              onClick={() => openAddShift(employee.carnet_identidad)}>
+                                <i class="fa-regular fa-calendar-plus"></i>
+                      </button>
+
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
+          </div>
         </div>
 
         {/* Pagination */}
@@ -150,6 +212,10 @@ const EmployeesPage = () => {
           ))}
         </div>
       </div>
+      {isInfoOpen && (<EmployeeInfo onClose={closeInfo} carnetIdentidad={selectedEmployee}/>)}
+      {isEditOpen &&(<EmployeeEdit onClose={closeEdit} carnetIdentidad={selectedEmployee}/>)}
+      {isShiftOpen && (<EmployeeShift onClose={closeShift} carnetIdentidad={selectedEmployee}/>)}
+      {isAddShiftOpen && (<AddShiftModal onClose={closeAddShift} carnetIdentidad={selectedEmployee}/>)}
     </div>
   );
 };
