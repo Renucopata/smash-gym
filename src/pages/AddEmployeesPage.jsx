@@ -6,6 +6,7 @@ import axiosInstance from "../utils/AxiosInstance"; // Ensure this is correctly 
 const AddEmployeesPage = () => {
 
   const navigate = useNavigate();
+  const userRole = localStorage.getItem("rol");
 
   const [formData, setFormData] = useState({
     ci: "",
@@ -99,11 +100,13 @@ const AddEmployeesPage = () => {
   };
 
   return (
+    
     <div className="min-h-screen bg-gray-100 flex items-center justify-center">
       <div className="bg-white shadow-lg rounded-lg w-full max-w-4xl p-8">
         <h2 className="text-2xl font-bold mb-6">Añadir Nuevo Empleado</h2>
         {successMessage && <p className="text-green-500 mb-4">{successMessage}</p>}
         {errorMessage && <p className="text-red-500 mb-4">{errorMessage}</p>}
+        {(userRole === "admin" || userRole === "sistemas")&&(
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             {/* CI */}
@@ -275,7 +278,7 @@ const AddEmployeesPage = () => {
               Registrar Empleado
             </button>
           </div>
-        </form>
+        </form>)}
       </div>
     </div>
 

@@ -21,6 +21,8 @@ const EmployeesPage = () => {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
   const itemsPerPage = 10;
 
+  const userRole = localStorage.getItem("rol");
+
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -153,10 +155,13 @@ const EmployeesPage = () => {
             onChange={(e) => setSearchQuery(e.target.value)}
             className="font-jaro bg-gray-200 border rounded px-4 py-2 w-1/3"
           />
-          <button className="font-jaro bg-[#0bae90] text-white px-4 py-2 rounded shadow hover:bg-emerald-300"
-          onClick={goAddEmployees}>
-            Añadir Personal
-          </button>
+          {(userRole === "admin" || userRole === "sistemas")&&(
+             <button className="font-jaro bg-[#0bae90] text-white px-4 py-2 rounded shadow hover:bg-emerald-300"
+             onClick={goAddEmployees}>
+               Añadir Personal
+             </button>
+          ) }
+         
         </div>
 
         {/* Employee List */}
@@ -203,10 +208,7 @@ const EmployeesPage = () => {
                               onClick={() => openInfo(employee.carnet_identidad)}>
                                 <i class="fa-solid fa-circle-info"></i>
                       </button>
-                      <button className="mr-2 hover:text-gray-400"
-                              onClick={() => openEdit(employee.carnet_identidad)}>
-                                <i class="fa-solid fa-pen-to-square"></i>
-                      </button>
+                     
                       <button className="mr-2 hover:text-gray-400"
                               onClick={() => openShift(employee.carnet_identidad)}>
                                 <i class="fa-regular fa-calendar-days"></i>
@@ -215,10 +217,11 @@ const EmployeesPage = () => {
                               onClick={() => openAddShift(employee.carnet_identidad)}>
                                 <i class="fa-regular fa-calendar-plus"></i>
                       </button>
-                      <button className="mr-2 hover:text-gray-400"
+                     { (userRole === "admin" || userRole === "sistemas")&&
+                      (<button className="mr-2 hover:text-gray-400"
                               onClick={() => openDelete(employee.carnet_identidad)}>
                                 <i class="fa-solid fa-trash-can"></i>
-                      </button>
+                      </button>)}
 
 
                   </td>

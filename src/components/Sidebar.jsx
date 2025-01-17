@@ -33,12 +33,7 @@ export default function Sidebar() {
         >
           Reportes
         </Link>
-        <Link
-          to="/clients"
-          className="py-2 px-4 hover:bg-[#d9bddc] after:block after:h-1 after:w-full after:bg-gradient-to-r after:from-[#3b3b41] after:to-transparent"
-        >
-          Cierre del día
-        </Link>
+        
       </div>
 
       {/* Logout button - will stay at bottom */}

@@ -17,6 +17,7 @@ const MembershipsPage = () => {
   const handleModalClose = () => setIsModalOpen(false);
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
+  const userRole = localStorage.getItem("rol");
   const itemsPerPage = 100;
 
   // Fetch memberships from the API
@@ -145,12 +146,13 @@ const MembershipsPage = () => {
                         >
                           <i class="fa-solid fa-circle-info"></i>
                         </button>
-                        <button
+
+                        {(userRole === "admin" || userRole === "sistemas")&&(<button
                           onClick={() => openDelete(membership.id)}
                           className="mr-2 hover:text-gray-400"
                         >
                           <i class="fa-solid fa-trash-can"></i>
-                        </button>
+                        </button>)}
                       
                       </td>
                   </tr>

@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from "react";
 import axiosInstance from "../utils/AxiosInstance"; // Import your axios instance
 
-export default function AttendanceList() {
+export default function AttendanceList({ searchQuery }) {
   const [attendances, setAttendances] = useState([]);
   const [error, setError] = useState(null);
 
-  // Fetch data from the API
   useEffect(() => {
     const fetchAttendances = async () => {
       try {
@@ -19,6 +18,11 @@ export default function AttendanceList() {
     fetchAttendances();
   }, []);
 
+  // Filter attendances based on searchQuery
+  const filteredAttendances = attendances.filter((attendance) =>
+    attendance.ci_cliente.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="flex-1 bg-white shadow rounded p-4 overflow-auto">
       <h2 className="text-xl font-bold mb-4">Asistencias del día</h2>
@@ -31,7 +35,7 @@ export default function AttendanceList() {
       )}
 
       {/* Attendance Table */}
-      {attendances.length > 0 ? (
+      {filteredAttendances.length > 0 ? (
         <table className="w-full border-collapse">
           <thead>
             <tr className="bg-gray-100 text-left">
@@ -41,7 +45,7 @@ export default function AttendanceList() {
             </tr>
           </thead>
           <tbody>
-            {attendances.map((attendance) => (
+            {filteredAttendances.map((attendance) => (
               <tr key={attendance.id} className="hover:bg-gray-50">
                 <td className="py-2 px-4 border-b">{attendance.ci_cliente}</td>
                 <td className="py-2 px-4 border-b">
@@ -58,5 +62,6 @@ export default function AttendanceList() {
     </div>
   );
 }
+
 
 

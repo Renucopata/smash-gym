@@ -18,7 +18,7 @@ const ClientsPage = () => {
   const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
 
-
+  const userRole = localStorage.getItem("rol");
   const itemsPerPage = 100;
 
   const openModal = () => setIsModalOpen(true);
@@ -184,12 +184,13 @@ const ClientsPage = () => {
                 >
                   <i class="fa-solid fa-pen-to-square"></i>
                 </button>
+                {(userRole === "admin" || userRole === "sistemas")&&(
                 <button
                   onClick={() => openDelete(client.carnet_identidad)}
                   className="mr-2 hover:text-gray-400"
                 >
                   <i class="fa-solid fa-trash-can"></i>
-                </button>
+                </button>)}
               
               </td>
             </tr>
