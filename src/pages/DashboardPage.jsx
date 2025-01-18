@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import Sidebar from "../components/SideBar";
+import Sidebar from "../components/Sidebar";
 import AttendanceList from "../components/AttendanceList";
+
 import RegisterButton from "../components/RegisterButton";
 import RegisterModal from "../components/RegisterModal";
 
