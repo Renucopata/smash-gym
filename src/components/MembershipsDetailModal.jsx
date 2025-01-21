@@ -90,6 +90,10 @@ export default function MembershipDetailsModal({ membershipId, onClose }) {
                 <td>{membershipData.carnet_identidad_cliente}</td>
               </tr>
               <tr>
+                <td className="font-bold pr-4 py-2">Cliente:</td>
+                <td>{membershipData.nombre_cliente}</td>
+              </tr>
+              <tr>
                 <td className="font-bold pr-4 py-2">Fecha Inicio:</td>
                 <td>{formatDateTime(membershipData.fecha_inicio)}</td>
               </tr>
@@ -114,7 +118,7 @@ export default function MembershipDetailsModal({ membershipId, onClose }) {
                 <td>{membershipData.metodo_pago}</td>
               </tr>
               <tr>
-                <td className="font-bold pr-4 py-2">Inscrito Por:</td>
+                <td className="font-bold pr-4 py-2">Inscrito Por(Carnet):</td>
                 <td>{membershipData.inscrito_por}</td>
               </tr>
               <tr>

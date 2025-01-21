@@ -8,7 +8,7 @@ export default function AttendanceList({ searchQuery }) {
   useEffect(() => {
     const fetchAttendances = async () => {
       try {
-        const response = await axiosInstance.get("/attendances/getTodays");
+        const response = await axiosInstance.get("/attendances/getTodays"); //change for a view with the name
         setAttendances(response.data); // Save the response data in state
       } catch (err) {
         console.error("Error fetching attendances:", err);
@@ -24,7 +24,7 @@ export default function AttendanceList({ searchQuery }) {
   );
 
   return (
-    <div className="flex-1 bg-white shadow rounded p-4 overflow-auto">
+    <div className="flex-1 bg-white shadow rounded p-4 overflow-y-auto sm:overflow-auto max-h-screen sm:max-h-[75vh]">
       <h2 className="text-xl font-bold mb-4">Asistencias del día</h2>
 
       {/* Error Message */}
@@ -40,6 +40,7 @@ export default function AttendanceList({ searchQuery }) {
           <thead>
             <tr className="bg-gray-100 text-left">
               <th className="py-2 px-4 border-b">Cliente</th>
+              <th className="py-2 px-4 border-b">Nombre</th>
               <th className="py-2 px-4 border-b">Hora de registro</th>
               <th className="py-2 px-4 border-b">Método de registro</th>
             </tr>
@@ -48,6 +49,7 @@ export default function AttendanceList({ searchQuery }) {
             {filteredAttendances.map((attendance) => (
               <tr key={attendance.id} className="hover:bg-gray-50">
                 <td className="py-2 px-4 border-b">{attendance.ci_cliente}</td>
+                <td className="py-2 px-4 border-b">{attendance.nombre}</td>
                 <td className="py-2 px-4 border-b">
                   {new Date(attendance.hora_de_registro).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
                 </td>

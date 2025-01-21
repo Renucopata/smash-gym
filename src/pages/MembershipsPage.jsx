@@ -138,7 +138,7 @@ const MembershipsPage = () => {
                       {membership.descuento} ({membership.descripcion_descuento})
                     </td>
                     <td className="p-2 border-b">{membership.metodo_pago}</td>
-                    <td className="p-2 border-b">{membership.inscrito_por}</td>
+                    <td className="p-2 border-b">{membership.inscrito_por_nombre}</td>
                     <td className="p-2 border-b">
                         <button
                           onClick={() => openDetailsModal(membership.id)}

@@ -28,6 +28,9 @@ const [attendanceCustomRange, setAttendanceCustomRange] = useState({
 
 const [attendanceCustomData, setAttendanceCustomData] = useState([]);
 
+const [ciCliente, setCiCliente] = useState(null);
+const [clientData, setClientData] = useState(null);
+
 
 
   useEffect(() => {
@@ -139,29 +142,61 @@ const [attendanceCustomData, setAttendanceCustomData] = useState([]);
     }
   };
 
+  const fetchClientData = async (value) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const response = await axiosInstance.get(`/reports/clientReport/${value}`);
+      setClientData(response.data.data[0]);
+      console.log(response.data.data);
+    } catch (err) {
+      setError("Failed to fetch client data");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const formatDateTime = (isoDate) => {
+    const date = new Date(isoDate);
+    return date.toLocaleDateString("es-ES", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+  };
+  
+
 
   const generateExcel = async () => {
-    
-    console.log(customDateRange.dateA === "");
-    console.log(customDateRange.dateB);
-    console.log(attendanceCustomRange.dateA);
-    console.log(attendanceCustomRange.dateB);
-    if (customDateRange.dateA === "" || attendanceCustomRange.dateA === "" || customDateRange.dateB === "" || attendanceCustomRange.dateB === "" ) {
-      alert("Porfavor seleccione todos los rangos de fecha para generar el archivo.");
+
+    if (
+      customDateRange.dateA === "" ||
+      attendanceCustomRange.dateA === "" ||
+      customDateRange.dateB === "" ||
+      attendanceCustomRange.dateB === "" ||
+      (clientData === undefined || clientData === null)
+    ) {
+      alert("Porfavor seleccione todos los rangos de fecha y un carnet valido para generar el archivo.");
       return;
     }
   
-  
     try {
-      // Fetch data from all four APIs
-      const [membershipsReport, attendancesReport, membershipsByDateReport, attendancesByDateReport] = await Promise.all([
+      // Fetch data from all five APIs
+      const [
+        membershipsReport,
+        attendancesReport,
+        membershipsByDateReport,
+        attendancesByDateReport,
+        clientReport
+      ] = await Promise.all([
         axiosInstance.get("/reports/membershipsReport"),
         axiosInstance.get("/reports/attendancesReport"),
         axiosInstance.post("/reports/membershipsBayDateReport", customDateRange),
-        axiosInstance.post("/reports/attendancesByDateReport",  {
+        axiosInstance.post("/reports/attendancesByDateReport", {
           dateA: attendanceCustomRange.dateA,
           dateB: attendanceCustomRange.dateB,
         }),
+        axiosInstance.get(`/reports/clientReport/${ciCliente}`) // Replace `ciCliente` with the actual value if hardcoded
       ]);
   
       // Create a workbook
@@ -206,6 +241,18 @@ const [attendanceCustomData, setAttendanceCustomData] = useState([]);
         ]),
       ];
   
+      const clientData = [
+        ["CI", "Nombre", "Total Membresías", "Total Gastado", "Primera Membresía", "Última Membresía"],
+        [
+          clientReport.data.data[0].carnet_identidad,
+          clientReport.data.data[0].nombre_cliente,
+          clientReport.data.data[0].total_membresias,
+          clientReport.data.data[0].total_gastado,
+          new Date(clientReport.data.data[0].primera_membresia).toLocaleDateString("es-ES"),
+          new Date(clientReport.data.data[0].ultima_membresia).toLocaleDateString("es-ES"),
+        ],
+      ];
+  
       // Add sheets to the workbook
       const membershipsSheet = XLSX.utils.aoa_to_sheet(membershipsData);
       XLSX.utils.book_append_sheet(workbook, membershipsSheet, "Reporte de Membresias");
@@ -219,12 +266,16 @@ const [attendanceCustomData, setAttendanceCustomData] = useState([]);
       const attendancesByDateSheet = XLSX.utils.aoa_to_sheet(attendancesByDateData);
       XLSX.utils.book_append_sheet(workbook, attendancesByDateSheet, "Asistencias por Fechas");
   
+      const clientSheet = XLSX.utils.aoa_to_sheet(clientData);
+      XLSX.utils.book_append_sheet(workbook, clientSheet, "Reporte de Cliente");
+  
       // Generate and download the Excel file
       XLSX.writeFile(workbook, "Reporte_Smash_Gym.xlsx");
     } catch (error) {
       console.error("Error generating Excel:", error);
     }
   };
+  
   
   
   
@@ -414,6 +465,54 @@ const [attendanceCustomData, setAttendanceCustomData] = useState([]);
 </div>
 </div>
 
+
+{/*clientes */}
+
+<div className="max-w-7xl mx-auto bg-white shadow-lg rounded-lg p-6 mt-6">
+  <h1 className="text-2xl font-bold mb-4">Reporte por Cliente</h1>
+
+  {/* Input to search client by CI */}
+  <div className="flex items-center gap-4 mb-6">
+    <input
+      type="text"
+      placeholder="Ingrese el CI del cliente"
+      value={ciCliente}
+      onChange={(e) => setCiCliente(e.target.value)}
+      className="flex-1 border px-4 py-2 rounded-lg w-1/2"
+    />
+    <button
+      onClick={() => fetchClientData(ciCliente)}
+      className="px-4 py-2 bg-[#0bae90] text-white rounded-lg"
+    >
+      Buscar Cliente
+    </button>
+  </div>
+
+  {/* Loading State */}
+  {loading && <p className="text-blue-500">Cargando datos...</p>}
+
+  {/* Error State */}
+  {error && <p className="text-red-500">{error}</p>}
+
+  {/* Client Report */}
+  {clientData && (
+    <div className="bg-gray-50 p-4 rounded-lg shadow-md">
+      <h2 className="text-lg font-semibold mb-4">Reporte por Cliente</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <p><span className="font-bold">CI:</span> {clientData.carnet_identidad}</p>
+        <p><span className="font-bold">Nombre:</span> {clientData.nombre_cliente}</p>
+        <p><span className="font-bold">Total Membresías:</span> {clientData.total_membresias}</p>
+        <p><span className="font-bold">Total Gastado:</span> {clientData.total_gastado}</p>
+        <p><span className="font-bold">Primera Membresía:</span> {formatDateTime(clientData.primera_membresia)}</p>
+        <p><span className="font-bold">Última Membresía:</span> {formatDateTime(clientData.ultima_membresia)}</p>
+      </div>
+    </div>
+  )}
+</div>
+
+
+
+
 <div className="flex justify-center items-center mt-6">
   <button
     onClick={generateExcel}
@@ -422,7 +521,6 @@ const [attendanceCustomData, setAttendanceCustomData] = useState([]);
     Generar Reporte en Excel
   </button>
 </div>
-
 
 
 

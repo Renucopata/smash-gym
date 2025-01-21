@@ -1,5 +1,8 @@
 import axios from "axios";
 
+/*http://localhost:5000*/
+//https://smash-gym-server-rrsoft.vercel.app/api
+
 const axiosInstance = axios.create({
   baseURL: "https://smash-gym-server-rrsoft.vercel.app/api",
 });

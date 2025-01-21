@@ -28,6 +28,7 @@ export default function AddMemberModal({onClose, onAdd}) {
             type: "select",
             options: [
                 { value: "Mensual", label: "Mensual" },
+                { value: "Bi Mensual", label: "Bi Mensual" },
                 { value: "Trimestral", label: "Trimestral" },
                 { value: "Semestral", label: "Semestral" },
                 { value: "Anual", label: "Anual" },

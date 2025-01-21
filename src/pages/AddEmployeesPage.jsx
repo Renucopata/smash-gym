@@ -45,6 +45,11 @@ const AddEmployeesPage = () => {
     if (!formData.hireDate.trim()) newErrors.hireDate = "La fecha de contratación es requerida.";
     if (!formData.pwd.trim() || formData.pwd.length < 6)
       newErrors.pwd = "La contraseña debe tener al menos 8 caracteres.";
+    if (!formData.role) {
+      alert("Por favor, selecciona un rol.");
+      return;
+    }
+    
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -242,18 +247,21 @@ const AddEmployeesPage = () => {
             </div>
 
             {/* Rol */}
-            <div>
-              <label className="block mb-2 font-medium">Rol</label>
-              <select
-                name="role"
-                value={formData.role}
-                onChange={handleChange}
-                className="w-full px-4 py-2 border rounded-md border-gray-300"
-              >
-                <option value="admin">Administrador</option>
-                <option value="user">Usuario</option>
-              </select>
-            </div>
+              <div>
+                <label className="block mb-2 font-medium">Rol</label>
+                <select
+                  name="role"
+                  value={formData.role}
+                  onChange={handleChange}
+                  className="w-full px-4 py-2 border rounded-md border-gray-300"
+                >
+                  <option value="" disabled>
+                    Selecciona un rol
+                  </option>
+                  <option value="admin">Administrador</option>
+                  <option value="user">Usuario</option>
+                </select>
+              </div>
 
             {/* Contraseña */}
             <div>
